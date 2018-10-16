@@ -102,9 +102,14 @@ applyBtn0.addEventListener('click', event =>{
 
 // сохранить описание дополнительных расходов
 applyBtn1.addEventListener('click', event =>{
+  optionalexpensesValue.textContent = '';
+  
   for (let i=0; i<optExpenses.length; i++){
     appData.optionalExpenses[i] = optExpenses[i].value;
-    optionalexpensesValue.textContent += optExpenses[i].value + '; ';
+  
+    if (optExpenses[i].value !== ''){
+      optionalexpensesValue.textContent += optExpenses[i].value + ' ';
+    }
   }
   
 });
@@ -196,14 +201,30 @@ for (let i=0; i<expenses.length; i++){
         calcBtn0.removeAttribute('disabled');
         calcBtn0.style.backgroundImage = '';
       }
+      
+      if ( !expenses[i].oldValue ) {expenses[i].oldValue = '';} // в js всё объекты, так что лепим свои свойства
+  
+      if ( /^\d+$/.test(expenses[i].value) || expenses[i].value === '' ) {
+        expenses[i].oldValue = expenses[i].value;
+      } else {
+        expenses[i].value = expenses[i].oldValue;
+      }
     });
   }
 }
 
 for (let i=0; i<optExpenses.length; i++){
   optExpenses[i].addEventListener('input', evt =>{
-      applyBtn1.removeAttribute('disabled');
-      applyBtn1.style.backgroundImage = '';
+    if ( !optExpenses[i].oldValue ) {optExpenses[i].oldValue = '';} // в js всё объекты, так что лепим свои свойства
+    
+    // "необязательные расходы" можно было использовать только русские буквы
+    if ( /^[А-Яа-яЁё_\-\ ]+$/.test(optExpenses[i].value) || optExpenses[i].value === '' ) {
+      optExpenses[i].oldValue = optExpenses[i].value;
+    } else {
+      optExpenses[i].value = optExpenses[i].oldValue;
+    }
+    applyBtn1.removeAttribute('disabled');
+    applyBtn1.style.backgroundImage = '';
   });
 }
 
