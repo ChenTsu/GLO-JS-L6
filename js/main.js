@@ -55,6 +55,19 @@ let appData = {
   optionalExpenses: {},
 };
 
+// Стилизовать проект на свой вкус
+document.addEventListener('DOMContentLoaded', (evt)=>{
+  let tmp = document.body.getElementsByClassName('app')[0];
+  tmp.style.background = '#f7f5fa';
+  
+  tmp = document.body.getElementsByClassName('result')[0];
+  tmp.style.fontStyle = 'italic';
+  
+  tmp = tmp.querySelectorAll('[class*="value"]');
+  tmp.forEach( el =>{
+    el.style.color = '#bab040';
+  });
+});
 
 startCalc.addEventListener('click', event=>{
   let tmp = null;
