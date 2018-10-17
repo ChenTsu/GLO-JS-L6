@@ -74,8 +74,8 @@ startCalc.addEventListener('click', event=>{
   
   while (1) {
     tmp = parseFloat(prompt('Ваш бюджет на месяц?', ''));
-    if (isNaN(tmp)) {
-      alert('Please, enter a valid number.');
+    if (isNaN(tmp) && tmp > 0) {
+      alert('Please, enter a valid number, grater than 0.');
     } else {
       // money = tmp;
       appData.budget = tmp;
@@ -98,6 +98,10 @@ applyBtn0.addEventListener('click', event =>{
   }
   
   expensesValue.textContent = sum;
+  
+  // активируем кнопку расчёта расходов после утверждения
+  calcBtn0.removeAttribute('disabled');
+  calcBtn0.style.backgroundImage = '';
 });
 
 // сохранить описание дополнительных расходов
@@ -127,7 +131,6 @@ calcBtn0.addEventListener('click', evt => {
     for (let i in appData.expenses) {
       allExpenses += appData.expenses[i];
     }
-    console.log(allExpenses);
     appData.moneyPerDay = (appData.budget - allExpenses)/ 30;
     //////
     
@@ -177,47 +180,80 @@ percent.addEventListener('input', calcSaving);
 // Если программа еще не запущена( не нажали кнопку "Начать расчет")
 // или нужное(соответственное) для заполнения поле пустое - сделать кнопки неактивными.
 // (Например, если ни одно поле обязательных расходов не заполнено - блокируем кнопку "Утвердить")
-
 for (let i = 0; i < allBtns.length - 1; i++) {
   allBtns[i].disabled = true;
   allBtns[i].style.backgroundImage = 'none';
 }
 
+// назначаем отслеживание изменений на все инпуты обязательных расходов
 for (let i=0; i<expenses.length; i++){
-  if(i%2===0){
+  if(i%2===0){ // для чётных (навания расходов)
     expenses[i].addEventListener('input', evt=> {
-      if(evt.target.nextElementSibling.value !== '' && appData.budget > 0){
+      let isExpensesFull = true;
+      
+      // блокируем кнопку рассчитать пока не утвердим новые расходы
+      calcBtn0.disabled = 'disabled';
+      calcBtn0.style.backgroundImage = 'none';
+  
+      // проверяем чтоб все поля были заполнены
+      for (let j =0; j<expenses.length; j++){
+        if (expenses[j].value === ''){
+          isExpensesFull = false;
+          break;
+        }
+      }
+  
+      // если все поля заполнены и запустили "начать расчёт" то разблокируем кнопку утвердить расходы
+      if(isExpensesFull && appData.budget > 0){
         applyBtn0.removeAttribute('disabled');
         applyBtn0.style.backgroundImage = '';
-        calcBtn0.removeAttribute('disabled');
-        calcBtn0.style.backgroundImage = '';
+      } else {
+        applyBtn0.disabled = 'disabled';
+        applyBtn0.style.backgroundImage = 'none';
       }
     });
-  } else {
+  } else { // для нечётных (суммы расходов)
     expenses[i].addEventListener('input', evt=> {
-      if(evt.target.previousElementSibling.value !== '' && appData.budget > 0){
-        applyBtn0.removeAttribute('disabled');
-        applyBtn0.style.backgroundImage = '';
-        calcBtn0.removeAttribute('disabled');
-        calcBtn0.style.backgroundImage = '';
-      }
-      
       if ( !expenses[i].oldValue ) {expenses[i].oldValue = '';} // в js всё объекты, так что лепим свои свойства
+      let isExpensesFull = true;
   
-      if ( /^\d+$/.test(expenses[i].value) || expenses[i].value === '' ) {
+      // блокируем кнопку рассчитать пока не утвердим новые расходы
+      calcBtn0.disabled = 'disabled';
+      calcBtn0.style.backgroundImage = 'none';
+      
+      // если некорректный ввод для поля, то восстанавливаем предыдущее значение
+      if ( /^\d+$/.test(expenses[i].value) || expenses[i].value === '') {
         expenses[i].oldValue = expenses[i].value;
       } else {
         expenses[i].value = expenses[i].oldValue;
+      }
+      
+      // проверяем чтоб все поля были заполнены
+      for (let j =0; j<expenses.length; j++){
+        if (expenses[j].value === ''){
+          isExpensesFull = false
+        }
+      }
+      
+      // если все поля заполнены и запустили "начать расчёт" то разблокируем кнопку утвердить расходы
+      if(isExpensesFull && appData.budget > 0){
+        applyBtn0.removeAttribute('disabled');
+        applyBtn0.style.backgroundImage = '';
+      } else {
+        applyBtn0.disabled = 'disabled';
+        applyBtn0.style.backgroundImage = 'none';
       }
     });
   }
 }
 
+// назначаем обработчик на изменение каждого поля необязательных расходов
 for (let i=0; i<optExpenses.length; i++){
   optExpenses[i].addEventListener('input', evt =>{
     if ( !optExpenses[i].oldValue ) {optExpenses[i].oldValue = '';} // в js всё объекты, так что лепим свои свойства
     
-    // "необязательные расходы" можно было использовать только русские буквы
+    // в поле "необязательные расходы" можно использовать только русские буквы
+    // если некорректный ввод для поля, то восстанавливаем предыдущее значение
     if ( /^[А-Яа-яЁё_\-\ ]+$/.test(optExpenses[i].value) || optExpenses[i].value === '' ) {
       optExpenses[i].oldValue = optExpenses[i].value;
     } else {
