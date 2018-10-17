@@ -83,6 +83,9 @@ startCalc.addEventListener('click', event=>{
       break;
     }
   }
+  
+  // сюда можно влепить проверку заполненности полей и активировать кнопки
+  // чтоб пользователю не пришлось генерировать события в полях
 });
 
 
@@ -259,8 +262,12 @@ for (let i=0; i<optExpenses.length; i++){
     } else {
       optExpenses[i].value = optExpenses[i].oldValue;
     }
-    applyBtn1.removeAttribute('disabled');
-    applyBtn1.style.backgroundImage = '';
+    
+    // активируем кнопку утверждения расходов только если запустили "начать расчёт"
+    if (appData.budget > 0) {
+      applyBtn1.removeAttribute('disabled');
+      applyBtn1.style.backgroundImage = '';
+    }
   });
 }
 
